@@ -1,0 +1,16 @@
+{
+  "name": "wechat-ex-fusion",
+  "version": "1.0.0",
+  "private": true,
+  "description": "把前任做成微信里的 AI — 微信聊天记录导出 + 前任人设创作 + 微信↔Claude Code 桥接",
+  "type": "module",
+  "scripts": {
+    "install-bot": "cd wechat-claude-code && npm install",
+    "setup": "node scripts/run.mjs setup",
+    "start": "node scripts/run.mjs start",
+    "stop": "node scripts/run.mjs stop",
+    "extract": "node scripts/run.mjs extract",
+    "persona": "node scripts/run.mjs persona",
+    "daemon": "bash wechat-claude-code/scripts/daemon.sh"
+  }
+}

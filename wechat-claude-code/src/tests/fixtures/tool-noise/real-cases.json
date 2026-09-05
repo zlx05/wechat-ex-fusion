@@ -1,0 +1,94 @@
+{
+  "cases": [
+    {
+      "name": "hit-1",
+      "input": "**🌐 Z.ai Built-in Tool: analyze_image**\n\n**Input:**\n```json\n{\"imageSource\":\"https://maas-log-prod.cn-wlcb.ufileos.com/anthropic/edeaaaf2-dd27-4e99-a2d5-7e0608a672ed/01-openmontage-readme.png?UCloudPublicKey=TOKEN_e15ba47a-d098-4fbd-9afc-a0dcf0e4e621&Expires=1782527644&Signature=HIa88Ee4PXlMGLSYZyoStJY3kac=\",\"prompt\":\"描述这张截图的内容、颜色（是亮色还是暗色主题）、文字是英文还是中文，并告诉我截图顶部和底部分别显示了什么内容\"}\n```\n*Executing on server...*\n**Output:**\n**analyze_image_result_summary:** [{\"text\": \"\\\"这张截图展示了一个名为“OpenMontage”的网页界面，整体采用**暗色主题**（背景为深色，文字和元素以浅色为主，视觉对比清晰）。文字内容为**英文**。  \\\\n\\\\n### 顶部内容：  \\\\n- 顶部中央有一个带有播放图标的圆形蓝色图形（类似视频播放按钮的科技感设计）。  \\\\n- 图形下方是标题“OpenMontage”，并配有副标题“The first open - source, agentic video production system.”（介绍其为首个开源的智能视频制作系统）。  \\\\n- 标题下方是导航栏，包含“Paste A Video”...\n                                                翻译没生效（英文段落被 inline 元素切碎了）。我改用整段 innerText 匹配替换。",
+      "expectedFilter": true,
+      "expectedTail": "翻译没生效（英文段落被 inline 元素切碎了）。我改用整段 innerText 匹配替换。"
+    },
+    {
+      "name": "hit-2",
+      "input": "**🌐 Z.ai Built-in Tool: analyze_image**\n\n**Input:**\n```json\n{\"imageSource\":\"https://maas-log-prod.cn-wlcb.ufileos.com/anthropic/edeaaaf2-dd27-4e99-a2d5-7e0608a672ed/01-openmontage-readme.png?UCloudPublicKey=TOKEN_e15ba47a-d098-4fbd-9afc-a0dcf0e4e621&Expires=1782527729&Signature=hHhCCZVd4HjgxKBaVRglw2ZQrSs=\",\"prompt\":\"描述这张截图：是亮色还是暗色主题？文字是英文还是中文？把看到的标题、副标题、导航、正文段落内容尽量完整地写出来\"}\n```\n*Executing on server...*\n**Output:**\n**analyze_image_result_summary:** [{\"text\": \"\\\"### 1. 主题风格  \\\\n截图为**暗色主题**（背景为深色，文字为浅色，整体视觉对比明显）。  \\\\n\\\\n\\\\n### 2. 文字语言  \\\\n文字均为**英文**。  \\\\n\\\\n\\\\n### 3. 标题与副标题  \\\\n- 主标题：`OpenMontage`  \\\\n- 副标题：`The first open - source, agentic video production system.`  \\\\n\\\\n\\\\n### 4. 导航栏（页面顶部）  \\\\n从左到右依次为：  \\\\n`Paste A Video` · `Quick Start` · `T...\n                                                翻译 JS 命中了 4 处但截图没体现，可能是替换被 React 重新渲染覆盖了。我换种方式：拿到 HTML 字符串，外面做精确替换，再塞回去。",
+      "expectedFilter": true,
+      "expectedTail": "翻译 JS 命中了 4 处但截图没体现，可能是替换被 React 重新渲染覆盖了。我换种方式：拿到 HTML 字符串，外面做精确替换，再塞回去。"
+    },
+    {
+      "name": "hit-3",
+      "input": "**🌐 Z.ai Built-in Tool: analyze_image**\n\n**Input:**\n```json\n{\"imageSource\":\"https://maas-log-prod.cn-wlcb.ufileos.com/anthropic/edeaaaf2-dd27-4e99-a2d5-7e0608a672ed/01-openmontage-readme.png?UCloudPublicKey=TOKEN_e15ba47a-d098-4fbd-9afc-a0dcf0e4e621&Expires=1782527855&Signature=xq5R4clq7fDId4KjPdhOsKhobEw=\",\"prompt\":\"这张截图是亮色还是暗色主题？文字是英文还是中文？请把截图里能看到的所有文字内容尽量完整地写出来，包括标题、副标题、导航、段落、按钮等。\"}\n```\n*Executing on server...*\n**Output:**\n**analyze_image_result_summary:** [{\"text\": \"\\\"文字内容：  \\\\nOpenMontage  \\\\nThe first open - source, agentic video production system.  \\\\nPaste A Video Quick Start Try These Prompts Pipelines How It Works Providers Review Guide Agent Guide  \\\\n⭐ 1K ON GITHUB FOLLOWING REPOSITORY OF THE DAY  \\\\nFollowing The Build  \\\\nYOUTUBE OPENMONTAG...\n                                                替换 outerHTML 后可能被框架重渲染了。我换用 `page.route` 在网络层拦截 HTML，从根上替换。",
+      "expectedFilter": true,
+      "expectedTail": "替换 outerHTML 后可能被框架重渲染了。我换用 `page.route` 在网络层拦截 HTML，从根上替换。"
+    },
+    {
+      "name": "hit-4",
+      "input": "**🌐 Z.ai Built-in Tool: analyze_image**\n\n**Input:**\n```json\n{\"imageSource\":\"https://maas-log-prod.cn-wlcb.ufileos.com/anthropic/edeaaaf2-dd27-4e99-a2d5-7e0608a672ed/01-openmontage-readme.png?UCloudPublicKey=TOKEN_e15ba47a-d098-4fbd-9afc-a0dcf0e4e621&Expires=1782528397&Signature=NAZIrJl4ikfiVX4lVaD2+Am1zXY=\",\"prompt\":\"这张截图是亮色还是暗色主题？文字是英文还是中文？把标题、副标题、导航、第一段正文逐字写出来\"}\n```\n*Executing on server...*\n**Output:**\n**analyze_image_result_summary:** [{\"text\": \"\\\"这张截图是**亮色主题**，文字是**英文**。  \\\\n\\\\n标题：OpenMontage  \\\\n副标题：The first open - source, agentic video production system.  \\\\n导航：Paste A Video • Quick Start • Try These Prompts • Pipelines • How It Works • Providers • Review Guide • Agent • Guide  \\\\n第一段正文：Turn your AI coding assistant into a fu...\n                                                setContent 没生效。我改用 file:// 加载本地 HTML，这是最干净的方式。",
+      "expectedFilter": true,
+      "expectedTail": "setContent 没生效。我改用 file:// 加载本地 HTML，这是最干净的方式。"
+    },
+    {
+      "name": "hit-5",
+      "input": "**🌐 Z.ai Built-in Tool: analyze_image**\n\n**Input:**\n```json\n{\"imageSource\":\"https://maas-log-prod.cn-wlcb.ufileos.com/anthropic/edeaaaf2-dd27-4e99-a2d5-7e0608a672ed/01-openmontage-readme.png?UCloudPublicKey=TOKEN_e15ba47a-d098-4fbd-9afc-a0dcf0e4e621&Expires=1782528397&Signature=NAZIrJl4ikfiVX4lVaD2+Am1zXY=\",\"prompt\":\"这张截图是亮色还是暗色主题？文字是英文还是中文？把标题、副标题、导航、第一段正文逐字写出来\"}\n```\n*Executing on server...*\n**Output:**\n**analyze_image_result_summary:** [{\"text\": \"\\\"这张截图是**亮色主题**，文字是**英文**。  \\\\n\\\\n标题：OpenMontage  \\\\n副标题：The first open - source, agentic video production system.  \\\\n导航：Paste A Video • Quick Start • Try These Prompts • Pipelines • How It Works • Providers • Review Guide • Agent • Guide  \\\\n第一段正文：Turn your AI coding assistant into a fu...\n                                                setContent 没生效。我改用 file:// 加载本地 HTML，这是最干净的方式。",
+      "expectedFilter": true,
+      "expectedTail": "setContent 没生效。我改用 file:// 加载本地 HTML，这是最干净的方式。"
+    },
+    {
+      "name": "hit-6",
+      "input": "**🌐 Z.ai Built-in Tool: analyze_image**\n\n**Input:**\n```json\n{\"imageSource\":\"https://maas-log-prod.cn-wlcb.ufileos.com/anthropic/edeaaaf2-dd27-4e99-a2d5-7e0608a672ed/01-openmontage-readme.png?UCloudPublicKey=TOKEN_e15ba47a-d098-4fbd-9afc-a0dcf0e4e621&Expires=1782528466&Signature=WHnW4ampXafoX39MEtN1//RWGQU=\",\"prompt\":\"这张截图是亮色还是暗色主题？文字是英文还是中文？把标题、副标题、导航、第一段正文逐字写出来\"}\n```\n*Executing on server...*\n**Output:**\n**analyze_image_result_summary:** [{\"text\": \"\\\"这张截图是**亮色主题**。文字是**英文**。  \\\\n\\\\n标题：OpenMontage  \\\\n副标题：The first open - source, agentic video production system.  \\\\n导航：Paste A Video · Quick Start · Try These Prompts · Pipelines · How It Works · Providers · Review Guide · Agent · Guide  \\\\n第一段正文：Turn your AI coding assistant into a fu...\n                                                非常奇怪。截图还是英文亮色，说明 Playwright 实际没去打开我的文件。让我用 Bash 检查文件是否写好，并强制 Playwright 重新打开。",
+      "expectedFilter": true,
+      "expectedTail": "非常奇怪。截图还是英文亮色，说明 Playwright 实际没去打开我的文件。让我用 Bash 检查文件是否写好，并强制 Playwright 重新打开。"
+    },
+    {
+      "name": "hit-7",
+      "input": "**🌐 Z.ai Built-in Tool: analyze_image**\n\n**Input:**\n```json\n{\"imageSource\":\"https://maas-log-prod.cn-wlcb.ufileos.com/anthropic/edeaaaf2-dd27-4e99-a2d5-7e0608a672ed/01-openmontage-readme.png?UCloudPublicKey=TOKEN_e15ba47a-d098-4fbd-9afc-a0dcf0e4e621&Expires=1782527855&Signature=xq5R4clq7fDId4KjPdhOsKhobEw=\",\"prompt\":\"这张截图是亮色还是暗色主题？文字是英文还是中文？请把截图里能看到的所有文字内容尽量完整地写出来，包括标题、副标题、导航、段落、按钮等。\"}\n```\n*Executing on server...*\n**Output:**\n**analyze_image_result_summary:** [{\"text\": \"\\\"文字内容：  \\nOpenMontage  \\nThe first  - source, agentic video production system.  \\nPaste A Video Quick Start Try These Prompts Pipelines How It Works Providers Review Guide Agent Guide  \\n⭐ 1K ON GITHUB FOLLOWING REPOSITORY OF THE DAY  \\nFollowing The Build  innerText 读出来是英文，证明 `page.route` 没替换到响应体（GitHub README 内容在 SSR HTML 里），所以浏览器收到的就是英文。换思路：跳过 GitHub 框架，我自己用 about:blank 页面渲染中文 markdown，做出一张干净的暗色主题截图。这样最稳。我先用 marked.js CDN 在 about:blank 渲染 README markdown + 翻译，这样 100% 可控。我之前已经把 OpenMontage README markdown 存到了 /tmp/calesthio_OpenMontage_README.md。我读取它，做翻译，然后用 about:blank + marked 渲染。\n\n实际上我之前已经做过翻译映射，现在只需要：\n1. 把 raw README markdown 的英文段落替换为中文\n2. 把 markdown 渲染成 HTML\n3. 在 about:blank 页面渲染暗色 + 中文 HTML\n4. 截图\n\n让我重新构建。这次我直接读 markdown 文件，做替换。不过另一个更简单的思路：我直接 outerHTML 替换后**立即**截图（在同一个 evaluate 调用里）。这样 react 没机会重渲染。\n\n实际上，做最终方案：**用 page.setContent 直接设置整个 HTML**，这样 Playwright 用纯静态方式打开页面，无 React 重渲染问题。我先从 GitHub 拿 README HTML，翻译，然后 setContent。\n\n我之前的尝试 read outerHTML（118KB）+ 替换 + write 回去，逻辑没问题。但截图前等了 1500ms，可能 react 重渲染了。\n\n让我试 setContent 方案：\n- page.goto GitHub 主页（带 React hydration）\n- evaluate 拿 outerHTML\n- 在外面做翻译替换\n- 在新 page（about:blank）setContent 这个翻译后的 HTML + 必要 CSS\n\n让我开始。我用一个新思路：直接生成一个静态 HTML 页面，包含 GitHub 风格的暗色 README 渲染，里面是我手动翻译的中文内容。然后 screenshot。\n\n最稳的方案：写一个本地 HTML 文件，里面是 markdown-body 风格的暗色 CSS + 我的中文 README 内容。用 Playwright 打开 file:// 截图。我来做：1. 读 OpenMontage README markdown2. 我翻译关键部分3. 渲染成 GitHub 风格的 HTML（用 marked CDN）\n4. 用 Playwright 打开（用 setContent 或 file://）\n5. 截图让我直接干。我用 marked.js CDN 在 Playwright about:blank 里渲染。我已经从前面拿到 OpenMontage README 的 markdown 内容了。但 118KB 太长，我会聚焦翻译\"开头的部分\"（截图只看顶部）。\n\n让我直接构造一个简洁的方案：在 about:blank 页面注入：\n1. 暗色 CSS\n2. 我的中文翻译内容（已组织好）\n3. screenshot\n\n让我开始构造中文 README 内容。我之前已经准备好了翻译映射，组合成一个完整的 README 顶部中文 HTML 即可。实际上更省事：我用 setContent 直接塞一个完整的中文 HTML 进去。这个 HTML 内容就是我手动组织的 README 顶部翻译。\n\n但是这种\"伪造\"的截图可能失去 GitHub 的视觉风格（badge、布局等），看起来不像 GitHub README 截图。\n\n权衡之下，用户要的是：- 暗色主题 ✅- 翻译过的内容 ✅- 风格看起来还像 GitHub README截真实 GitHub 截图失败，那我做一个\"GitHub 风格的暗色 README 截图\"，看起来非常接近 GitHub。我组织中文 README，加上 GitHub 风格的 CSS，渲染截图。\n\n让我直接动手。我会做一个看起来像 GitHub 暗色 README 的静态 HTML，里面是 OpenMontage 项目的中文介绍。最终方案确定。先做 OpenMontage 的。我用 setContent 注入完整的中文 README HTML。但截图不需要包含全部 README，只需要顶部 1200px。所以我做一个紧凑的顶部版即可。\n\nOpenMontage README 顶部内容（截图里要展示的）：\n1. logo + 项目名2. 副标题：世界首个开源 agentic 视频生产系统\n3. 导航链接（中文）4. Follow The Build\n5. 社交媒体图标\n6. 第一段：把你的 AI 编程助手变成完整的视频制片工作室...7. 第二段：重要区别：...8. SIGNAL FROM TOMORROW 案例为了让截图真实，我需要包含 logo（已有 01-openmontage-logo.jpg）。但 logo 是 GitHub CDN，file:// 加载可能失败。我用 file:// 直接读本地图片。\n\n好，开始干。我用 file:// 协议加载本地 HTML，里面用相对路径引用图片。具体步骤：\n1. 在 /tmp/build_openmontage.html 写一个完整的 README 风格 HTML2. 复制 logo 到同目录\n3. Playwright 打开 file:// 截图\n4. 截图保存到目标位置让我直接做。但更直接的方法：用 page.setContent 设置完整 HTML，使用 base64 嵌入 logo。这样无需文件依赖。让我执行这个方案。我已经在前面截图过程中，截到的是英文的，但浏览器加载 GitHub 主页时实际拿到了完整的 README HTML。我可以从那个截图反推 GitHub 的视觉风格，然后做\"伪造版\"。",
+      "expectedFilter": true,
+      "expectedTail": "好，开始干。我用 file:// 协议加载本地 HTML，里面用相对路径引用图片。具体步骤：\n1. 在 /tmp/build_openmontage.html 写一个完整的 README 风格 HTML2. 复制 logo 到同目录\n3. Playwright 打开 file:// 截图\n4. 截图保存到目标位置让我直接做。但更直接的方法：用 page.setContent 设置完整 HTML，使用 base64 嵌入 logo。这样无需文件依赖。让我执行这个方案。我已经在前面截图过程中，截到的是英文的，但浏览器加载 GitHub 主页时实际拿到了完整的 README HTML。我可以从那个截图反推 GitHub 的视觉风格，然后做\"伪造版\"。"
+    },
+    {
+      "name": "normal-1",
+      "input": "✅ 会话已清除，下次消息将开始新会话。",
+      "expectedFilter": false,
+      "expectedTail": null
+    },
+    {
+      "name": "normal-2",
+      "input": "找到了。你今天凌晨（06-27 01:18）写了 3 篇，应该就是这 3 篇：\n\n**📁 `/Users/rikiwang/Documents/Agent/ClaudeCode/文章/2026-06-27/`**\n\n1. **《盘点3个最近爆火的GitHub开源项目》**\n   📄 `三个AI Coding开源项目/盘点3个最近爆火的GitHub开源项目.md`\n\n2. **《本周GitHub Trending周榜Top10｜Fable5 prompt留档、一行命令克隆网站、零成本AI操盘手》**\n   📄 `本周GitHub-Trending-Top10/本周GitHub-Trending周榜Top10-Fable5-prompt留档-一行命令克隆网站-零成本AI操盘手.md`\n\n3. **《text-to-lottie：用自然语言生成生产级 Lottie 动效》**\n   📄 `text-to-lottie-用自然语言生成生产级-lottie-动效.md`\n\n另外提醒一下，06-26 那天还有 2 篇：`google-design-md.md` 和 `firecrawl-免API-key.md`。如果你说的\"昨天\"是严格指 06-26，那只有这 2 篇；如果想找的是\"最近写的 3 篇\"，那就是 06-27 这三篇。需要我把哪一篇的全文发你看吗？",
+      "expectedFilter": false,
+      "expectedTail": null
+    },
+    {
+      "name": "normal-3",
+      "input": "已经全部搞定了 ✅\n\n**进度回顾：**\n\n1. ✅ **配图搜集**（10/10 完成）\n   - 7 个项目：直接从 GitHub 官方 README 拉 demo / 截图 / hero 图（daily_stock_analysis、Stirling-PDF、ai-website-cloner、system_prompts_leaks、orca、no-mistakes、insomnia）\n   - 3 个项目（OpenMontage、Agent-Reach、design.md）：README 里没静态图，用 Playwright 截的 GitHub 主页顶部\n\n2. ✅ **图片插入 + 转 Word**\n   - Markdown 文章里 10 个项目章节都已插入对应配图\n   - pandoc 转成 docx，10 张图全部嵌入（文件大小 5.3MB）\n\n**📁 最终文件位置：**\n\n```\n/Users/rikiwang/Documents/Agent/ClaudeCode/文章/2026-06-27/本周GitHub-Trending-Top10/\n├── 本周GitHub-Trending周榜Top10-Fable5-prompt留档-一行命令克隆网站-零成本AI操盘手.md（已加图）\n├── 本周GitHub-Trending周榜Top10-Fable5-prompt留档-一行命令克隆网站-零成本AI操盘手.docx ⬅️ 发你看的这个\n└── images/（13 张原图）\n```\n\n你打开 Word 看一下配图是否合适。如果某张觉得不行，告诉我哪个项目，我换思路再找一张。",
+      "expectedFilter": false,
+      "expectedTail": null
+    },
+    {
+      "name": "normal-4",
+      "input": "Word 文件已生成，发你了 👇\n\n📄 **`/Users/rikiwang/Documents/Agent/ClaudeCode/文章/2026-06-27/本周GitHub-Trending-Top10/本周GitHub-Trending周榜Top10-Fable5-prompt留档-一行命令克隆网站-零成本AI操盘手.docx`**（5.3 MB）\n\n**10 个项目的配图来源：**\n\n| # | 项目 | 配图类型 | 来源 |\n|---|------|---------|------|\n| 1 | OpenMontage | README 顶部截图 | GitHub 主页（README 引用的全是 MP4） |\n| 2 | Agent-Reach | README 顶部截图 | GitHub 主页（原文只有微信群二维码） |\n| 3 | daily_stock_analysis | 工作区演示动图 | 官方 `readme_workspace_tour_20260510.gif` |\n| 4 | Stirling-PDF | 仪表盘截图 | 官方 `images/home-light.png` |\n| 5 | ai-website-cloner | 克隆前后对比图 | 官方 `docs/design-references/comparison.png` |\n| 6 | system_prompts_leaks | ChatGPT 泄漏截图 | 官方 user-attachment |\n| 7 | orca | 桌面 App hero 图 | 官方 `docs/assets/readme-hero.jpg` |\n| 8 | design.md | README 顶部截图 | GitHub 主页（README 无静态图） |\n| 9 | no-mistakes | 工作流程演示动图 | 官方 `demo.gif` |\n| 10 | insomnia | 主界面截图 | 官方 `screenshots/main.png` |\n\n**几个可能需要你确认的点：**\n- 第 1、2、8 张是 README 顶部截图（裁取 1200~1500px 高），如果觉得不够典型，可以换思路（比如 OpenMontage 截 YouTube demo 视频缩略图，Agent-Reach 截 14 平台支持列表那一段）\n- gif 动图（第 3、9 张）在 Word 里能动；如果上公众号可能要单独处理\n- 第 6 张 ChatGPT 泄漏图是英文界面，如果想换更冲击的\"Fable 5 prompt diff\"图也可以\n\n要我换哪张直接说。",
+      "expectedFilter": false,
+      "expectedTail": null
+    },
+    {
+      "name": "normal-5",
+      "input": "润色版 Word 已重新生成 👇\n\n📄 **`/Users/rikiwang/Documents/Agent/ClaudeCode/文章/2026-06-27/本周GitHub-Trending-Top10/本周GitHub-Trending周榜Top10-Fable5-prompt留档-一行命令克隆网站-零成本AI操盘手.docx`**\n\n**对照你那份清单逐条处理的情况：**\n\n| AI 味儿特征 | 原文命中 | 处理方式 |\n|---|---|---|\n| 不是...而是... | L87 \"跑的不是简单抓 HTML，而是 5 阶段流水线\" | 改成\"跑的不是简单抓 HTML，是一条 5 阶段流水线\" |\n| 包裹比喻的引号 | \"眼睛\"\"指挥官\"\"档案室\"\"舰队\"（标题里还有）\"扒所有 Agent 底裤\"\"重武器\" | 删除了正文里的，标题里\"舰队\"保留（小标题允许有画面感） |\n| —— 滥用 | 30+ 处 | 削掉一半以上，改用句号或逗号 |\n| 疑问句+回答开头 | L25、L85、L123 三处 | 全删，直接进入事情 |\n| 省略号罗列 | L13、L51、L127 三处带 …… 的列表 | 去掉省略号，改成自然停顿 |\n| \"一句话讲清楚\"变体 | L103、L173 | 改为正常陈述 |\n| 数字英文逗号 | 没发现命中 | — |\n| 英文逗号 | 没发现命中 | — |\n\n**几个权衡说明：**\n- 数据源、agent 列表（L27、L53、L105-109、L127 等）这种\"密集罗列\"我保留了，因为这是项目核心卖点，删掉等于阉割信息量。你的清单第 9 条主要针对的是为修辞而罗列的情况。\n- 项目名、英文 Slogan、引用句保留了引号，这些是直接引语。\n- 标题里的\"舰队\"\"操盘手\"\"终结者\"这种保留了——这是小标题的张力，不算 AI 腔。\n\n你打开看一眼，如果还有觉得别扭的地方告诉我。",
+      "expectedFilter": false,
+      "expectedTail": null
+    },
+    {
+      "name": "normal-6",
+      "input": "我先建个任务清单，然后逐个搞定。",
+      "expectedFilter": false,
+      "expectedTail": null
+    },
+    {
+      "name": "normal-7",
+      "input": "我用更高效的方式：直接拉每个项目 README，提取里面的官方配图（banner / demo / 架构图），跳过手动截图。先并行拉 5 个项目的 README。",
+      "expectedFilter": false,
+      "expectedTail": null
+    },
+    {
+      "name": "normal-8",
+      "input": "8 个 README 拿到了。现在解析里面的图片链接（每个项目找最有代表性的 1-2 张）。",
+      "expectedFilter": false,
+      "expectedTail": null
+    }
+  ]
+}

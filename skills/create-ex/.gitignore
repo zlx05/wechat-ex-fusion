@@ -1,0 +1,22 @@
+# 生成的前任 Skill（隐私保护，不上传）
+exes/
+!exes/example_xiaoming/
+
+# 临时文件
+/tmp/
+*.pyc
+__pycache__/
+.DS_Store
+
+# 用户数据
+knowledge/
+*.db
+*.sqlite
+
+# IDE
+.vscode/
+.idea/
+
+# 环境
+.env
+venv/
