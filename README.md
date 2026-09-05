@@ -90,6 +90,78 @@ npm run daemon -- start      # stop / status / restart / logs
 
 ---
 
+## 🖼️ 教学步骤
+
+下面按「从下载到开聊」的真实操作顺序，一步步配图。
+
+### 1. 下载并进入项目
+
+在 GitHub 仓库首页点 **Code → Download ZIP** 下载压缩包，解压后在这个文件夹里打开终端（Windows 在文件夹里 `Shift+右键 → 在此处打开 PowerShell 窗口`）。
+
+<p align="center">
+<img src="docs/images/step1-download.png" width="480" alt="下载压缩包">
+</p>
+
+<p align="center">
+<img src="docs/images/step1-unzip.png" width="480" alt="解压后进入目录">
+</p>
+
+### 2. 扫码绑定微信
+
+执行 `npm run setup`。**首次运行会自动装依赖、编译、并安装「导出记录」与「创建人设」这两个 skill（约 1–2 分钟）**，然后弹出二维码。
+
+<p align="center">
+<img src="docs/images/step2-qrcode.png" width="480" alt="弹出二维码">
+</p>
+
+用手机微信扫一扫，在微信里找到并绑定「微信 ClawBot」插件。
+
+<p align="center">
+<img src="docs/images/step2-scan-bind.jpg" width="300" alt="微信扫码绑定">
+</p>
+
+### 3. 提取聊天记录（可选，但推荐）
+
+执行 `npm run extract` 会自动拉起 Claude Code 并触发「微信聊天记录导出」skill，然后输入对方的微信备注，等待提取完成，结果落在 `exports/` 目录。
+
+<p align="center">
+<img src="docs/images/step3-extract.png" width="480" alt="提取聊天记录">
+</p>
+
+<p align="center">
+<img src="docs/images/step3-remark.png" width="480" alt="输入对方备注">
+</p>
+
+### 4. 生成前任人设
+
+提取完成后回到终端执行 `npm run persona`，把上一步导出的聊天记录位置告诉 Claude，并导入对方的其它信息（照片等），create-ex 会蒸馏出人设，落在 `exes/<名字>/`。
+
+<p align="center">
+<img src="docs/images/step4-persona.png" width="480" alt="执行建立人设命令">
+</p>
+
+<p align="center">
+<img src="docs/images/step4-basicinfo.png" width="480" alt="输入基本信息并告诉 Claude 聊天记录位置">
+</p>
+
+<p align="center">
+<img src="docs/images/step4-import.png" width="480" alt="导入对方信息">
+</p>
+
+### 5. 启动机器人开聊
+
+执行 `npm start`，守护进程前台运行。然后打开微信，给出现的那个 AI 机器人好友发条消息——ta 就会像那个人一样跟你聊了。
+
+<p align="center">
+<img src="docs/images/step5-start.png" width="480" alt="启动机器人">
+</p>
+
+<p align="center">
+<img src="docs/images/step5-chat-demo.jpg" width="300" alt="微信聊天效果">
+</p>
+
+---
+
 ## 💬 微信端命令
 
 直接在微信对话框发：
