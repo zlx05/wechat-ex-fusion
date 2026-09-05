@@ -45,7 +45,7 @@ wechat-ex-fusion/
 
 ## 📋 前置条件
 
-- **Node.js ≥ 18**（[下载](https://nodejs.org)）
+- **Node.js ≥ 18**（[下载 LTS](https://nodejs.org/en/download)）——**必须先装**，整个 bot 靠 Node.js 运行；双击 `扫码绑定.bat` 等按钮若检测不到 Node 会提示安装。
 - **Claude Code CLI** 已安装并完成认证（[官方指南](https://docs.anthropic.com/en/docs/claude-code)）；需在 `~/.claude/skills/` 下能看到自定义 skill
 - **Python 3.9+**（仅「提取信息」步骤用；用于调用 PyWxDump）
 - **个人微信账号**（扫码绑定）
@@ -69,28 +69,27 @@ wechat-ex-fusion/
 | `启动.bat` | 启动机器人服务（前台运行，Ctrl+C 停止） |
 | `停止.bat` | 停止机器人服务 |
 
-> 提示：**首次使用**点按钮会自动安装依赖并编译（需能访问 npm 源，约 1–2 分钟）；已就绪后不会重复。也可先按「方式二」第 1 步手动准备。
+> 提示：**首次使用**点按钮会自动安装依赖并编译（需能访问 npm 源，约 1–2 分钟）；已就绪后不会重复。「提取信息」「设立人设」两个步骤还需先把 `skills/` 下的同名 skill 装进 `~/.claude/skills/`（见方式二第 1 步）。
 
 ### 方式二：跨平台（Win / macOS / Linux 通用）
 
-```bash
-# 1. 安装 bot 依赖 + 编译（可跳过：npm run setup / start 首次会自动完成；此处为手动方式）
-cd wechat-claude-code && npm install && cd ..
+> 首次执行任意 npm 命令会**自动安装依赖并编译**，无需手动准备。macOS / Linux 用户以此为准；Windows 用户也可在 WSL / git-bash 里执行。
 
-# 2. 安装两个 skill 到 Claude Code（让 /create-ex、提取记录可用）
+```bash
+# 1. 安装两个 skill 到 Claude Code（让 /create-ex、提取记录可用）
 cp -r skills/create-ex ~/.claude/skills/
 cp -r skills/wechat-chat-export ~/.claude/skills/
 
-# 3. 扫码绑定微信
+# 2. 扫码绑定微信（首次会自动安装依赖并编译）
 npm run setup            # 或 扫码绑定.bat
 
-# 4. 提取某人的聊天记录（可选，但推荐。会问到「跟谁提取」）
+# 3. 提取某人的聊天记录（可选，但推荐。会问到「跟谁提取」）
 npm run extract          # 或 提取信息.bat  → 结果落 exports/
 
-# 5. 生成前任人设（导入上一步 exports/ 里的记录）
+# 4. 生成前任人设（导入上一步 exports/ 里的记录）
 npm run persona          # 或 设立人设.bat  → 生成 exes/<slug>/
 
-# 6. 启动机器人
+# 5. 启动机器人
 npm start                # 或 启动.bat
 ```
 
