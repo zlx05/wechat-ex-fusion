@@ -52,6 +52,30 @@ function run(cmd, args, opts = {}) {
   return spawn(cmd, args, { stdio: 'inherit', env: process.env, ...opts });
 }
 
+// 拉起 Claude CLI 交互(extract / persona 用)。
+// 不做形态假设:真实用户装法各异——Windows 上可能是 claude.cmd(npm)或 claude.exe /
+// 原生安装,mac/linux 是 PATH 里的 claude。Windows 把执行交给系统 shell,由它按
+// PATHEXT 解析成交 (.cmd/.exe 均兼容);prompt 包成引号字符串,保证作为单参数传入。
+// 若 claude 不在 PATH,可用环境变量 CLAUDE_CLI 指向完整路径。
+function runClaude(prompt, cwd) {
+  const cli = process.env.CLAUDE_CLI || 'claude';
+  const isWin = process.platform === 'win32';
+  const args = isWin ? ['"' + prompt + '"'] : [prompt];
+  const child = run(cli, args, { cwd, shell: isWin });
+  child.on('error', (err) => {
+    if (err && err.code === 'ENOENT') {
+      console.error(`✖ 未找到 \`${cli}\` 命令。请先安装 Claude Code CLI 并完成认证:`);
+      console.error('   官方指南 https://docs.anthropic.com/en/docs/claude-code');
+      console.error('   装好并认证后,在终端执行 `claude --version` 确认可用再重试。');
+      console.error('   若命令不在 PATH,可用环境变量 CLAUDE_CLI=完整路径 指给它。');
+    } else {
+      console.error(`✖ 启动 ${cli} 失败:`, err && err.message);
+    }
+    process.exit(1);
+  });
+  return child;
+}
+
 // --- 确保 bot 已就绪(装依赖 + 编译出 dist/),只需做一次 --------------------------
 // 新用户 clone / 下载 ZIP 后,dist/ 是构建产物、被 .gitignore 排除,不存在。
 // setup/start/daemon 都依赖 dist/main.js,所以在此自动准备,否则会 MODULE_NOT_FOUND。
@@ -150,7 +174,7 @@ function extract() {
   console.log('▶ 正在拉起 Claude Code,触发「微信聊天记录导出」skill…');
   console.log('   接下来会被问到「跟谁提取」;导出的 md/json 会落在 exports\\ 目录。');
   console.log('   提取完成后,用「设立人设」步骤时导入这份记录即可。');
-  const child = run('claude', [EXTRACT_PROMPT], { cwd: exportsDir });
+  const child = runClaude(EXTRACT_PROMPT, exportsDir);
   child.on('exit', (code) => process.exit(code ?? 0));
 }
 
@@ -158,7 +182,7 @@ function persona() {
   ensureSkillsInstalled();
   console.log('▶ 正在拉起 Claude Code,触发「前任人设创作」skill…');
   console.log('   按提示操作;生成的人设会落在 exes\\ 目录(微信号聊天使用的就是它)。');
-  const child = run('claude', [PERSONA_PROMPT], { cwd: ROOT });
+  const child = runClaude(PERSONA_PROMPT, ROOT);
   child.on('exit', (code) => process.exit(code ?? 0));
 }
 
