@@ -10,10 +10,10 @@
 // 所有子命令都跨平台(Win/macOS/Linux)。
 // -----------------------------------------------------------------------------
 import { spawn, spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { accessSync, constants as fsConst, cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { dirname, join, resolve } from 'node:path';
+import { delimiter as PATH_SEP, dirname, join, resolve } from 'node:path';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const BOT_DIR = join(ROOT, 'wechat-claude-code');
@@ -52,25 +52,73 @@ function run(cmd, args, opts = {}) {
   return spawn(cmd, args, { stdio: 'inherit', env: process.env, ...opts });
 }
 
-// 拉起 Claude CLI 交互(extract / persona 用)。
-// 不做形态假设:真实用户装法各异——Windows 上可能是 claude.cmd(npm)或 claude.exe /
-// 原生安装,mac/linux 是 PATH 里的 claude。Windows 把执行交给系统 shell,由它按
-// PATHEXT 解析成交 (.cmd/.exe 均兼容);prompt 包成引号字符串,保证作为单参数传入。
-// 若 claude 不在 PATH,可用环境变量 CLAUDE_CLI 指向完整路径。
+// --- 定位 Claude CLI(extract / persona 用) -----------------------------------------
+// 不做形态假设,真实用户装法各异:
+//   · Windows:可能是 claude.cmd(npm 全局)或 claude.exe / claude.bat / 原生安装;
+//   · macOS / Linux:PATH 里的 claude(shim)。
+// 显式按各形态去 PATH 与常见安装目录找可用文件:命中 .cmd/.bat 交给 shell 执行,
+// 命中 .exe / 无扩展名则直接 spawn。CLAUDE_CLI 环境变量可强制指定完整路径。
+const CLAUDE_NAMES = process.platform === 'win32'
+  ? ['claude.cmd', 'claude.exe', 'claude.bat', 'claude.com']
+  : ['claude'];
+
+// 常见却未必在 PATH 的安装位置(兜底探测,别指望用户一定把 PATH 配好)
+const CLAUDE_COMMON = process.platform === 'win32'
+  ? [
+      join(process.env.APPDATA || '', 'npm', 'claude.cmd'),
+      join(process.env.USERPROFILE || '', '.local', 'bin', 'claude.exe'),
+      join(process.env.LOCALAPPDATA || '', 'Programs', 'claude', 'claude.exe'),
+    ]
+  : [
+      join(homedir(), '.local', 'bin', 'claude'),
+      join(homedir(), 'npm-global', 'bin', 'claude'),
+      '/usr/local/bin/claude',
+    ];
+
+function isUsableFile(p) {
+  try {
+    accessSync(p, fsConst.F_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// 返回 { command, useShell } 或 null(找不到时)。
+function resolveClaude() {
+  if (process.env.CLAUDE_CLI) return { command: process.env.CLAUDE_CLI, useShell: false };
+
+  const pathDirs = (process.env.PATH || '').split(PATH_SEP).filter(Boolean);
+  const candidates = [];
+  for (const dir of pathDirs) {
+    for (const name of CLAUDE_NAMES) candidates.push(join(dir, name));
+  }
+  candidates.push(...CLAUDE_COMMON);
+
+  for (const file of candidates) {
+    if (!isUsableFile(file)) continue;
+    const lower = file.toLowerCase();
+    const useShell = process.platform === 'win32' && (lower.endsWith('.cmd') || lower.endsWith('.bat'));
+    return { command: file, useShell };
+  }
+  return null;
+}
+
 function runClaude(prompt, cwd) {
-  const cli = process.env.CLAUDE_CLI || 'claude';
-  const isWin = process.platform === 'win32';
-  const args = isWin ? ['"' + prompt + '"'] : [prompt];
-  const child = run(cli, args, { cwd, shell: isWin });
+  const resolved = resolveClaude();
+  if (!resolved) {
+    console.error('✖ 未找到 `claude`,无法拉起 Claude Code。请先安装并认证:');
+    console.error('   官方指南 https://docs.anthropic.com/en/docs/claude-code');
+    console.error('   装好后在终端执行 `claude --version` 确认可用,再重试。');
+    console.error('   若命令不在 PATH,可用环境变量 CLAUDE_CLI=完整路径 指给它。');
+    process.exit(1);
+  }
+  const { command, useShell } = resolved;
+  // 只有经 shell 执行 .cmd/.bat 时才需要把 prompt 包成引号串,保证当作单参数传入。
+  const args = useShell ? ['"' + prompt + '"'] : [prompt];
+  const child = run(command, args, { cwd, shell: useShell });
   child.on('error', (err) => {
-    if (err && err.code === 'ENOENT') {
-      console.error(`✖ 未找到 \`${cli}\` 命令。请先安装 Claude Code CLI 并完成认证:`);
-      console.error('   官方指南 https://docs.anthropic.com/en/docs/claude-code');
-      console.error('   装好并认证后,在终端执行 `claude --version` 确认可用再重试。');
-      console.error('   若命令不在 PATH,可用环境变量 CLAUDE_CLI=完整路径 指给它。');
-    } else {
-      console.error(`✖ 启动 ${cli} 失败:`, err && err.message);
-    }
+    console.error(`✖ 启动 ${command} 失败:`, err && err.message);
     process.exit(1);
   });
   return child;
