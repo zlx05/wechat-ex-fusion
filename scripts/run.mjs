@@ -7,7 +7,7 @@
 //   1. 读取仓库根 .env(若存在),补上融合项目默认的环境变量;
 //   2. 把不同子命令分发到对应的进程(bot 守护进程 / claude 交互式 skill)。
 //
-// 所有子命令都跨平台(Win/macOS/Linux)。Windows 用户也可以用根目录的 *.bat。
+// 所有子命令都跨平台(Win/macOS/Linux)。
 // -----------------------------------------------------------------------------
 import { spawn, spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
@@ -117,7 +117,7 @@ function ensureSkillsInstalled() {
 
 function daemonStart() {
   ensureBotReady();
-  applyDefaults(); // 保持与启动.bat 一致:bot 也拿到 fusion 环境变量
+  applyDefaults(); // bot 也拿到 fusion 环境变量(与 setup 一致)
   console.log('▶ 正在启动机器人守护进程(前台运行,Ctrl+C 停止)…');
   const child = run(process.execPath, ['dist/main.js', 'start', '--wechat-ex-fusion'], { cwd: BOT_DIR });
   child.on('exit', (code) => process.exit(code ?? 0));

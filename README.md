@@ -35,7 +35,6 @@ wechat-ex-fusion/
 │   ├── wechat-chat-export/      # ① 微信聊天记录导出（自研）
 │   └── create-ex/               # ② 前任人设创作（上游 ex-skill）
 ├── scripts/run.mjs              # 跨平台入口（setup/start/stop/extract/persona）
-├── 启动.bat · 扫码绑定.bat · 停止.bat · 设立人设.bat · 提取信息.bat   # Windows 一键
 └── docs/images/                 # 教学截图
 ```
 
@@ -45,7 +44,7 @@ wechat-ex-fusion/
 
 ## 📋 前置条件
 
-- **Node.js ≥ 18**（[下载 LTS](https://nodejs.org/en/download)）——**必须先装**，整个 bot 靠 Node.js 运行；双击 `扫码绑定.bat` 等按钮若检测不到 Node 会提示安装。
+- **Node.js ≥ 18**（[下载 LTS](https://nodejs.org/en/download)）——**必须先装**，整个系统靠 Node.js 运行；没装的话终端输 `npm` 会报「不是内部或外部命令 / command not found」。装好后用 `node -v` 验证。
 - **Claude Code CLI** 已安装并完成认证（[官方指南](https://docs.anthropic.com/en/docs/claude-code)）；需在 `~/.claude/skills/` 下能看到自定义 skill
 - **Python 3.9+**（仅「提取信息」步骤用；用于调用 PyWxDump）
 - **个人微信账号**（扫码绑定）
@@ -57,36 +56,28 @@ wechat-ex-fusion/
 
 ## 🚀 快速开始
 
-### 方式一：Windows 一键（五个按钮）
+所有平台统一用**终端命令**。先打开终端并进入项目目录：
 
-在项目根目录双击：
+- **Windows**：在项目文件夹里按 `Shift+右键` →「在此处打开 PowerShell 窗口」
+- **macOS / Linux**：`cd <clone路径>/wechat-ex-fusion`
 
-| 按钮 | 作用 |
-|---|---|
-| `扫码绑定.bat` | 弹出二维码，用微信扫一扫绑定 |
-| `提取信息.bat` | 拉起 Claude Code，导出某联系人聊天记录 → `exports/` |
-| `设立人设.bat` | 拉起 Claude Code，生成 / 更新前任人设 → `exes/` |
-| `启动.bat` | 启动机器人服务（前台运行，Ctrl+C 停止） |
-| `停止.bat` | 停止机器人服务 |
-
-> 提示：**首次使用**点按钮会自动安装依赖并编译，并自动把 `skills/` 下的两个 skill 装进 `~/.claude/skills/`（需能访问 npm 源，约 1–2 分钟）；已就绪后不会重复。
-
-### 方式二：跨平台（Win / macOS / Linux 通用）
-
-> 首次执行任意 npm 命令会**自动安装依赖并编译**，并自动把仓库自带的两个 skill 装进 `~/.claude/skills/`，无需手动准备。macOS / Linux 用户以此为准；Windows 用户也可在 WSL / git-bash 里执行。
+> **首次使用**执行下面任意命令，会自动安装依赖、编译 TypeScript，并把仓库自带的两个 skill 装进 `~/.claude/skills/`（需能访问 npm 源，约 1–2 分钟）；已就绪后不会重复。前提是 Node.js ≥ 18 已装。
 
 ```bash
-# 1. 扫码绑定微信（首次会自动装依赖、编译，并自动安装两个 skill）
-npm run setup            # 或 扫码绑定.bat
+# 1. 扫码绑定微信（弹出二维码，用微信扫一扫）
+npm run setup
 
 # 2. 提取某人的聊天记录（可选，但推荐。会问到「跟谁提取」）
-npm run extract          # 或 提取信息.bat  → 结果落 exports/
+npm run extract
 
 # 3. 生成前任人设（导入上一步 exports/ 里的记录）
-npm run persona          # 或 设立人设.bat  → 生成 exes/<slug>/
+npm run persona
 
-# 4. 启动机器人
-npm start                # 或 启动.bat
+# 4. 启动机器人（前台运行，Ctrl+C 停止）
+npm start
+
+# 5. 停止机器人（另开一个终端执行）
+npm run stop
 ```
 
 然后打开微信，给新出现的那个「机器人好友」发条消息试试。
