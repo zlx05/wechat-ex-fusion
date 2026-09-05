@@ -10,12 +10,14 @@
 // 所有子命令都跨平台(Win/macOS/Linux)。Windows 用户也可以用根目录的 *.bat。
 // -----------------------------------------------------------------------------
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const BOT_DIR = join(ROOT, 'wechat-claude-code');
+const SKILLS_SRC = join(ROOT, 'skills');
 
 const EXTRACT_PROMPT = '请用 wechat-chat-export skill 帮我导出某个联系人的微信聊天记录';
 const PERSONA_PROMPT = '请用 create-ex skill 帮我创建或更新前任人设';
@@ -87,6 +89,32 @@ function ensureBotReady() {
   console.log('   ✓ bot 已就绪。');
 }
 
+// --- 自动把仓库里的两个 skill 装到 Claude Code 的 skills 目录 ---------------------
+// 仓库根 skills/create-ex、skills/wechat-chat-export 是「安装源」;bot / claude 触发
+// /create-ex、/wechat-chat-export 时,需在 CLAUDE_CONFIG_DIR/skills(默认 ~/.claude/skills)
+// 下能找到。直接拉起 claude 的 extract/persona 及绑定后的微信端命令都依赖此。
+function ensureSkillsInstalled() {
+  const claudeDir = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
+  const skillsDir = join(claudeDir, 'skills');
+  const names = ['create-ex', 'wechat-chat-export'].filter((n) => existsSync(join(SKILLS_SRC, n)));
+  if (names.length === 0) return;
+
+  let installedAny = false;
+  for (const name of names) {
+    const dest = join(skillsDir, name);
+    if (existsSync(dest)) {
+      console.log(`   · skill「${name}」已存在,跳过(位于 ${claudeDir})`);
+      continue;
+    }
+    if (!installedAny) console.log('▶ 首次使用:自动安装仓库自带的两个 skill 到 Claude Code…');
+    console.log(`   · 安装「${name}」→ ${skillsDir}`);
+    mkdirSync(skillsDir, { recursive: true });
+    cpSync(join(SKILLS_SRC, name), dest, { recursive: true });
+    installedAny = true;
+  }
+  if (installedAny) console.log('   ✓ skills 已就绪,可直接触发 /create-ex、/wechat-chat-export。');
+}
+
 function daemonStart() {
   ensureBotReady();
   applyDefaults(); // 保持与启动.bat 一致:bot 也拿到 fusion 环境变量
@@ -97,6 +125,7 @@ function daemonStart() {
 
 function setup() {
   ensureBotReady();
+  ensureSkillsInstalled();
   applyDefaults();
   console.log('▶ 扫码绑定微信(会弹出二维码,用微信扫一扫)…');
   const child = run(process.execPath, ['dist/main.js', 'setup', '--wechat-ex-fusion'], { cwd: BOT_DIR });
@@ -115,6 +144,7 @@ function stop() {
 }
 
 function extract() {
+  ensureSkillsInstalled();
   const exportsDir = join(ROOT, 'exports');
   mkdirSync(exportsDir, { recursive: true });
   console.log('▶ 正在拉起 Claude Code,触发「微信聊天记录导出」skill…');
@@ -125,6 +155,7 @@ function extract() {
 }
 
 function persona() {
+  ensureSkillsInstalled();
   console.log('▶ 正在拉起 Claude Code,触发「前任人设创作」skill…');
   console.log('   按提示操作;生成的人设会落在 exes\\ 目录(微信号聊天使用的就是它)。');
   const child = run('claude', [PERSONA_PROMPT], { cwd: ROOT });

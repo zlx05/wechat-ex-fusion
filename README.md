@@ -69,27 +69,23 @@ wechat-ex-fusion/
 | `启动.bat` | 启动机器人服务（前台运行，Ctrl+C 停止） |
 | `停止.bat` | 停止机器人服务 |
 
-> 提示：**首次使用**点按钮会自动安装依赖并编译（需能访问 npm 源，约 1–2 分钟）；已就绪后不会重复。「提取信息」「设立人设」两个步骤还需先把 `skills/` 下的同名 skill 装进 `~/.claude/skills/`（见方式二第 1 步）。
+> 提示：**首次使用**点按钮会自动安装依赖并编译，并自动把 `skills/` 下的两个 skill 装进 `~/.claude/skills/`（需能访问 npm 源，约 1–2 分钟）；已就绪后不会重复。
 
 ### 方式二：跨平台（Win / macOS / Linux 通用）
 
-> 首次执行任意 npm 命令会**自动安装依赖并编译**，无需手动准备。macOS / Linux 用户以此为准；Windows 用户也可在 WSL / git-bash 里执行。
+> 首次执行任意 npm 命令会**自动安装依赖并编译**，并自动把仓库自带的两个 skill 装进 `~/.claude/skills/`，无需手动准备。macOS / Linux 用户以此为准；Windows 用户也可在 WSL / git-bash 里执行。
 
 ```bash
-# 1. 安装两个 skill 到 Claude Code（让 /create-ex、提取记录可用）
-cp -r skills/create-ex ~/.claude/skills/
-cp -r skills/wechat-chat-export ~/.claude/skills/
-
-# 2. 扫码绑定微信（首次会自动安装依赖并编译）
+# 1. 扫码绑定微信（首次会自动装依赖、编译，并自动安装两个 skill）
 npm run setup            # 或 扫码绑定.bat
 
-# 3. 提取某人的聊天记录（可选，但推荐。会问到「跟谁提取」）
+# 2. 提取某人的聊天记录（可选，但推荐。会问到「跟谁提取」）
 npm run extract          # 或 提取信息.bat  → 结果落 exports/
 
-# 4. 生成前任人设（导入上一步 exports/ 里的记录）
+# 3. 生成前任人设（导入上一步 exports/ 里的记录）
 npm run persona          # 或 设立人设.bat  → 生成 exes/<slug>/
 
-# 5. 启动机器人
+# 4. 启动机器人
 npm start                # 或 启动.bat
 ```
 
