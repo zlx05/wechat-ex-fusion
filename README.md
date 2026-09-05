@@ -52,6 +52,8 @@ wechat-ex-fusion/
 
 > Claude Code 支持第三方 API（OpenRouter、AWS Bedrock 等），设置 `ANTHROPIC_BASE_URL` 和 `ANTHROPIC_API_KEY` 即可。
 
+> ⚠️ **这个项目从头到尾都跑在 Claude 上**——人设聊天、任务助手、导出/建人设的 skill,全都要调用本机的 Claude。**没有 Claude 就没有任何功能。** 如果你还没有 Claude Code CLI,可以在 **B 站搜「claude cc-switch」**:cc-switch 是一个第三方 API 切换工具,能帮你低成本接上能用的 Claude 模型(OpenRouter、第三方中转、Bedrock 等),配好 `CLAUDE_CLI` / `ANTHROPIC_BASE_URL` / `ANTHROPIC_API_KEY` 即可。装好后用 `claude --version` 验证。
+
 ---
 
 ## 🚀 快速开始
@@ -79,6 +81,8 @@ npm start
 # 5. 停止机器人（另开一个终端执行）
 npm run stop
 ```
+
+> ⚠️ **提取聊天记录这一步,只对你「电脑上已经存在」的记录有效**——即微信电脑版已登录、本地数据库里能解出对话才算。如果你要的资料**只在手机里**,得先用其它 GitHub 工具在电脑端导出(如 **WeChatMsg / 留痕 / PyWxDump**),得到 `txt/html/json` 文件后再走这一步;更多导出工具见 [create-ex 的导入指南](skills/create-ex/docs/EXPORT_GUIDE.md)。
 
 然后打开微信，给新出现的那个「机器人好友」发条消息试试。
 
@@ -123,6 +127,8 @@ npm run daemon -- start      # stop / status / restart / logs
 ### 3. 提取聊天记录（可选，但推荐）
 
 执行 `npm run extract` 会自动拉起 Claude Code 并触发「微信聊天记录导出」skill，然后输入对方的微信备注，等待提取完成，结果落在 `exports/` 目录。
+
+> ⚠️ **只对「电脑上已有的记录」有效**——微信电脑版已登录、本地库能解出对话才算。记录若**只在手机里**,请先用其它 GitHub 工具在电脑端导出成 `txt/html/json`(如 **WeChatMsg / 留痕 / PyWxDump**),再走这一步。
 
 <p align="center">
 <img src="docs/images/step3-extract.png" width="480" alt="提取聊天记录">
