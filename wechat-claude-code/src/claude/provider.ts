@@ -170,6 +170,12 @@ export function handleStreamLine(
 // Core function
 // ---------------------------------------------------------------------------
 
+/**
+ * CLAUDE_CLI：显式指定 claude 可执行文件完整路径。用户在非 PATH 位置安装 claude
+ * 时（与 scripts/run.mjs 的 extract/persona 同规则），守护进程也能拉起它。
+ */
+const CLAUDE_BIN = process.env.CLAUDE_CLI || 'claude';
+
 /** Windows 上 `claude` 是 npm 全局的 .cmd 垫片，必须经 cmd.exe 才能解析。 */
 function createChild(args: string[], cwd: string): ChildProcess {
   const opts: Parameters<typeof spawn>[2] = {
@@ -179,11 +185,11 @@ function createChild(args: string[], cwd: string): ChildProcess {
     windowsHide: true,
   };
   if (process.platform !== 'win32') {
-    return spawn('claude', args, opts);
+    return spawn(CLAUDE_BIN, args, opts);
   }
   // cmd.exe 的引号规则是 '' 双写转义（反斜杠转义在 cmd 里无效）；含特殊字符才包引号，否则原样传
   const quote = (s: string) => /[\s"^&|<>%]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-  const cmdline = ['claude', ...args.map(quote)].join(' ');
+  const cmdline = [CLAUDE_BIN, ...args.map(quote)].join(' ');
   return spawn('cmd.exe', ['/d', '/s', '/c', cmdline], opts);
 }
 

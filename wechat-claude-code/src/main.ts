@@ -252,7 +252,7 @@ async function runSetup(): Promise<void> {
   config.workingDirectory = workingDir;
   saveConfig(config);
 
-  console.log('运行 npm run daemon -- start 启动服务');
+  console.log('✅ 绑定完成。在项目根目录运行 npm start 启动机器人');
 }
 
 // ---------------------------------------------------------------------------
@@ -265,7 +265,7 @@ async function runDaemon(): Promise<void> {
   const account = loadLatestAccount();
 
   if (!account) {
-    console.error('未找到账号，请先运行 node dist/main.js setup');
+    console.error('未找到账号，请先在项目根目录运行 npm run setup 扫码绑定');
     process.exit(1);
   }
 
