@@ -65,12 +65,3 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-### 3. wechat-chat-export — MIT © 本项目作者（自研）
-
-由本项目作者编写，随本项目以 MIT 许可发布。
-
-### 4. PyWxDump — 独立第三方依赖
-
-`wechat-chat-export` 在运行时通过 pip 安装 `pywxdump` 来读取微信数据库密钥并解密。它**不随本仓库分发**，仅作为运行时依赖被调用，其许可证与版权归原作者，请以 [其仓库](https://github.com/xaoyaoo/PyWxDump) 或 PyPI 页面公布的 LICENSE 为准。
-
-> ⚠️ 合规提示：`pywxdump` 这类微信数据库解密工具可能随微信版本更新而失效，且使用第三方解析工具存在合规风险。请仅导出你本人本机、你有权访问的数据，并在使用前自行了解并承担相应责任（详见 `skills/wechat-chat-export/SKILL.md` 的「安全与合规」）。
