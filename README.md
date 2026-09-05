@@ -69,12 +69,12 @@ wechat-ex-fusion/
 | `启动.bat` | 启动机器人服务（前台运行，Ctrl+C 停止） |
 | `停止.bat` | 停止机器人服务 |
 
-> 提示：先 `安装依赖`（见下），再点按钮。
+> 提示：**首次使用**点按钮会自动安装依赖并编译（需能访问 npm 源，约 1–2 分钟）；已就绪后不会重复。也可先按「方式二」第 1 步手动准备。
 
 ### 方式二：跨平台（Win / macOS / Linux 通用）
 
 ```bash
-# 1. 安装 bot 依赖（自动编译）
+# 1. 安装 bot 依赖 + 编译（可跳过：npm run setup / start 首次会自动完成；此处为手动方式）
 cd wechat-claude-code && npm install && cd ..
 
 # 2. 安装两个 skill 到 Claude Code（让 /create-ex、提取记录可用）
