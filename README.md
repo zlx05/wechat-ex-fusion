@@ -216,6 +216,8 @@ docs/images/.private/   # 含个人信息的本地截图（不打码不公开）
 
 > 各环境变量（`WCC_DATA_DIR` / `FUSION_ROOT` / `EXES_DIR` / `HER_SLUG`）可复制 `.env.example` 为 `.env` 覆盖，默认跟随项目目录。
 
+> 🤖 **空闲主动消息（默认开启）**：聊天空闲一阵子（随机 2–4 小时），Ta 会主动给你发一条符合人设的短消息，并计入对话历史。想关掉或调整，编辑 数据目录 下的 `config.json`：`"idleProactiveEnabled": false` 关掉；`idleProactiveMinHours` / `idleProactiveMaxHours` 调随机间隔；`idleProactiveQuietStart` / `idleProactiveQuietEnd` 调静默时段（默认 23:00–07:00 后半夜不打扰）。改完**重启 `npm start` 生效**。
+
 **协议与隐私边界**：
 
 - 只导出**你自己电脑**上、**你有权访问**的微信数据；密钥与内容不落盘、不外传。

@@ -14,6 +14,7 @@ import { downloadImage, extractText, extractFirstImageUrl, extractFirstFileItem,
 import { createSessionStore, type Session } from './session.js';
 import { routeCommand, type CommandContext, type CommandResult } from './commands/router.js';
 import { runPersonaUpdate, ensurePersonaSynced } from './persona/update.js';
+import { startIdleProactive } from './proactive.js';
 import { claudeQuery, type QueryOptions } from './claude/provider.js';
 import { TurnRouter } from './claude/turn-router.js';
 import { filterToolNoise } from './claude/tool-noise-filter.js';
@@ -31,6 +32,9 @@ const MAX_MESSAGE_LENGTH = 4000;
 
 // 所有模式通用的桥接说明行
 const BRIDGE_LINE = '你正在通过微信与用户对话，不是在终端里。不要让用户去终端操作。如果用户需要文件，直接输出文件地址就行，会自动识别解析推送文件到用户的微信中。';
+
+// 聊天模式人设的硬规则：回复绝不换行（用多条消息代替分段）。主动消息与普通回复共用此规则。
+const CHAT_HARD_RULE = '硬规则：回复里绝不出现换行符号。你可以发很长的文字，但整条必须是连续文本；想换段/换话头就停在这里把当前这条发出，下一条再从新的一句继续。';
 
 // Extensions eligible for auto-push when detected in Claude's response
 const AUTO_PUSH_EXTENSIONS = new Set([
@@ -296,6 +300,19 @@ async function runDaemon(): Promise<void> {
   const sharedCtx = { lastContextToken: '' };
   const activeControllers = new Map<string, AbortController>();
 
+  // -- 主动消息：聊天空闲随机时长后，以人设身份主动发一条（计入对话历史）。任意真实消息会重置计时 --
+  const idleProactive = startIdleProactive({
+    account,
+    session,
+    sessionStore,
+    sender,
+    loadConfig,
+    getLastContextToken: () => sharedCtx.lastContextToken,
+    buildChatSystemPrompt: () =>
+      [BRIDGE_LINE, CHAT_HARD_RULE, loadConfig().systemPrompt || ''].filter(Boolean).join('\n'),
+    split: splitChatLines,
+  });
+
   // -- Message queue for serial processing --
   const messageQueue: WeixinMessage[] = [];
   let processingQueue = false;
@@ -333,6 +350,7 @@ async function runDaemon(): Promise<void> {
 
   const callbacks: MonitorCallbacks = {
     onMessage: async (msg: WeixinMessage) => {
+      idleProactive.reset(); // 任何真实消息都视为"用户活跃"，重置空闲计时
       if (handlePriorityCommand(msg)) return;
       messageQueue.push(msg);
       drainQueue();
@@ -667,7 +685,7 @@ async function sendToClaude(
         ? [BRIDGE_LINE, config.taskSystemPrompt || DEFAULT_TASK_SYSTEM_PROMPT].filter(Boolean).join('\n')
         : [
             BRIDGE_LINE,
-            '硬规则：回复里绝不出现换行符号。你可以发很长的文字，但整条必须是连续文本；想换段/换话头就停在这里把当前这条发出，下一条再从新的一句继续。',
+            CHAT_HARD_RULE,
             config.systemPrompt || '',
           ].filter(Boolean).join('\n'),
       abortController,
