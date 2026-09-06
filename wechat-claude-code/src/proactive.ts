@@ -1,7 +1,7 @@
 import type { Config } from './config.js';
 import type { Session } from './session.js';
 import type { AccountData } from './wechat/accounts.js';
-import { claudeQuery } from './claude/provider.js';
+import { claudeQuery, type QueryOptions, type QueryResult } from './claude/provider.js';
 import { logger } from './logger.js';
 import { homedir } from 'node:os';
 
@@ -9,6 +9,8 @@ export const DEFAULT_IDLE_MIN_HOURS = 2;
 export const DEFAULT_IDLE_MAX_HOURS = 4;
 export const DEFAULT_QUIET_START = 23;
 export const DEFAULT_QUIET_END = 7;
+/** 随机间隔下限（小时），防止配置 0 导致的空转。 */
+const MIN_IDLE_DELAY_HOURS = 1 / 3600;
 
 /** 与 send.ts 的 sender 对齐的最小接口，避免运行时耦合。 */
 export interface SenderLike {
@@ -28,15 +30,19 @@ export interface IdleProactiveDeps {
   sender: SenderLike;
   loadConfig(): Config;
   getLastContextToken(): string;
-  /** 聊天模式完整系统提示（人设 + 桥接 + 无换行硬规则），与 sendToClaude 一致。 */
+  /** 聊天模式完整系统提示（人设 + 桥接 + 无换行/简短硬规则），与 sendToClaude 一致。 */
   buildChatSystemPrompt(): string;
   /** 聊天模式分段器（splitChatLines）。 */
   split(text: string): string[];
+  /** 注入当前时间（默认 new Date()），便于确定性测试。 */
+  getNow?: () => Date;
+  /** 注入查询函数（默认 claudeQuery），便于测试。 */
+  query?: (options: QueryOptions) => Promise<QueryResult>;
 }
 
 /** 随机等待时长（小时 → 毫秒），落在 [min, max] 之间；min/max 缺省 2/4 小时。 */
 export function randomProactiveDelayMs(config: Config): number {
-  const minH = Math.max(0.25, config.idleProactiveMinHours ?? DEFAULT_IDLE_MIN_HOURS);
+  const minH = Math.max(MIN_IDLE_DELAY_HOURS, config.idleProactiveMinHours ?? DEFAULT_IDLE_MIN_HOURS);
   const maxH = Math.max(minH, config.idleProactiveMaxHours ?? DEFAULT_IDLE_MAX_HOURS);
   const hours = minH + Math.random() * (maxH - minH);
   return Math.round(hours * 3_600_000);
@@ -51,20 +57,10 @@ export function withinQuietWindow(d: Date, config: Config): boolean {
   return start < end ? hour >= start && hour < end : hour >= start || hour < end;
 }
 
-/** now 之后最近的静默窗口结束时刻（含次日回卷），返回需等待的毫秒数。 */
-export function untilAfterQuietWindow(config: Config, now: Date = new Date()): number {
-  const end = (config.idleProactiveQuietEnd ?? DEFAULT_QUIET_END) % 24;
-  const cand = new Date(now);
-  cand.setHours(end, 0, 0, 0);
-  if (cand.getTime() <= now.getTime()) {
-    cand.setDate(cand.getDate() + 1);
-  }
-  return cand.getTime() - now.getTime();
-}
-
 /**
  * 空闲主动消息。聊天空闲达到随机时长后，以人设身份主动给绑定用户发一条短消息，
  * 并作为 assistant 消息写入 chatHistory（计入 /update 蒸馏原料）。任何真实用户消息都会重置计时。
+ * 静默窗口内不主动发：随机目标落在窗口里就这一轮不发，也不顺延补发——等下一次用户消息重新计时。
  */
 export function startIdleProactive(deps: IdleProactiveDeps): { reset(): void; stop(): void } {
   let timer: ReturnType<typeof setTimeout> | null = null;
@@ -82,11 +78,9 @@ export function startIdleProactive(deps: IdleProactiveDeps): { reset(): void; st
     clearTimer();
     const config = deps.loadConfig();
     if (config.idleProactiveEnabled === false) return; // 显式关闭则不设计时
-    let delay = randomProactiveDelayMs(config);
-    // 避免后半夜发：若随机目标落在静默窗口，顺延到窗口结束。
-    if (withinQuietWindow(new Date(Date.now() + delay), config)) {
-      delay = untilAfterQuietWindow(config);
-    }
+    const now = (deps.getNow ?? (() => new Date()))();
+    const delay = randomProactiveDelayMs(config);
+    if (withinQuietWindow(new Date(now.getTime() + delay), config)) return; // 窗口内不发、不补发
     timer = setTimeout(() => {
       timer = null;
       void fireFlow();
@@ -101,6 +95,8 @@ export function startIdleProactive(deps: IdleProactiveDeps): { reset(): void; st
     schedule();
   }
 
+  schedule(); // 启动即接入：按下一次随机间隔开始计时
+
   return {
     reset: () => schedule(),
     stop: () => { stopped = true; clearTimer(); },
@@ -114,6 +110,8 @@ async function fireProactive(deps: IdleProactiveDeps): Promise<void> {
   if (!config.systemPrompt) return;                   // 没人设不主动
   if (session.state !== 'idle' || session.mode !== 'chat') return;
   if (!account.userId) return;                        // 不知道发给谁
+
+  const ask = deps.query ?? claudeQuery;
 
   session.state = 'processing';
   sessionStore.save(account.accountId, session);
@@ -136,7 +134,7 @@ async function fireProactive(deps: IdleProactiveDeps): Promise<void> {
   ].join('\n');
 
   try {
-    const result = await claudeQuery({
+    const result = await ask({
       prompt,
       cwd,
       resume: session.sdkSessionId,
